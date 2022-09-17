@@ -171,53 +171,52 @@ void SnoozeCompare::pinMode( int _pin, int _type, float val ) {
  *******************************************************************************/
 void SnoozeCompare::disableDriver( uint8_t mode ) {
     if ( mode == 0 ) return;
-    IRQ_NUMBER_t IRQ_CMP;
     if ( mode == 1 ) {
+        IRQ_NUMBER_t irq;
         switch ( pin ) {
             case 0:
-                IRQ_CMP = IRQ_ACMP4;
+                irq = IRQ_ACMP4;
                 break;
             case 1:
-                IRQ_CMP = IRQ_ACMP3;
+                irq = IRQ_ACMP3;
                 break;
             case 14:
-                IRQ_CMP = IRQ_ACMP1;
+                irq = IRQ_ACMP1;
                 break;
             case 15:
-                IRQ_CMP = IRQ_ACMP2;
+                irq = IRQ_ACMP2;
                 break;
             case 16:
-                IRQ_CMP = IRQ_ACMP1;
+                irq = IRQ_ACMP1;
                 break;
             case 17:
-                IRQ_CMP = IRQ_ACMP1;
+                irq = IRQ_ACMP1;
                 break;
             case 18:
-                IRQ_CMP = IRQ_ACMP1;
+                irq = IRQ_ACMP1;
                 break;
             case 19:
-                IRQ_CMP = IRQ_ACMP4;
+                irq = IRQ_ACMP4;
                 break;
             case 20:
-                IRQ_CMP = IRQ_ACMP4;
+                irq = IRQ_ACMP4;
                 break;
             case 21:
-                IRQ_CMP = IRQ_ACMP1;
+                irq = IRQ_ACMP1;
                 break;
             case 22:
-                IRQ_CMP = IRQ_ACMP2;
+                irq = IRQ_ACMP2;
                 break;
             case 23:
-                IRQ_CMP = IRQ_ACMP3;
+                irq = IRQ_ACMP3;
                 break;
             default:
-                IRQ_CMP = IRQ_CMP;
-                break;
+		return;
         }
-        if ( return_isr_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_CMP );
-        NVIC_SET_PRIORITY( IRQ_CMP, return_priority );
+        if ( return_isr_enabled == 0 ) NVIC_DISABLE_IRQ( irq );
+        NVIC_SET_PRIORITY( irq, return_priority );
         __disable_irq( );
-        attachInterruptVector( IRQ_CMP, return_cmp_irq );// return prev interrupt
+        attachInterruptVector( irq, return_cmp_irq );// return prev interrupt
         __enable_irq( );
     }
     switch (pin) {
@@ -299,59 +298,60 @@ void SnoozeCompare::disableDriver( uint8_t mode ) {
  *******************************************************************************/
 void SnoozeCompare::enableDriver( uint8_t mode ) {
     if (mode == 0) return;
-    IRQ_NUMBER_t IRQ_CMP;
+    IRQ_NUMBER_t irq;
     if ( mode == 1 ) {
         switch ( pin ) {
             case 0:
-                IRQ_CMP = IRQ_ACMP4;
+                irq = IRQ_ACMP4;
                 break;
             case 1:
-                IRQ_CMP = IRQ_ACMP3;
+                irq = IRQ_ACMP3;
                 break;
             case 14:
-                IRQ_CMP = IRQ_ACMP1;
+                irq = IRQ_ACMP1;
                 break;
             case 15:
-                IRQ_CMP = IRQ_ACMP2;
+                irq = IRQ_ACMP2;
                 break;
             case 16:
-                IRQ_CMP = IRQ_ACMP1;
+                irq = IRQ_ACMP1;
                 break;
             case 17:
-                IRQ_CMP = IRQ_ACMP1;
+                irq = IRQ_ACMP1;
                 break;
             case 18:
-                IRQ_CMP = IRQ_ACMP1;
+                irq = IRQ_ACMP1;
                 break;
             case 19:
-                IRQ_CMP = IRQ_ACMP4;
+                irq = IRQ_ACMP4;
                 break;
             case 20:
-                IRQ_CMP = IRQ_ACMP4;
+                irq = IRQ_ACMP4;
                 break;
             case 21:
-                IRQ_CMP = IRQ_ACMP1;
+                irq = IRQ_ACMP1;
                 break;
             case 22:
-                IRQ_CMP = IRQ_ACMP2;
+                irq = IRQ_ACMP2;
                 break;
             case 23:
-                IRQ_CMP = IRQ_ACMP3;
+                irq = IRQ_ACMP3;
                 break;
             default:
-                IRQ_CMP = IRQ_CMP;
-                break;
+                return;
         }
-        return_priority = NVIC_GET_PRIORITY( IRQ_CMP );//get current priority
+        return_priority = NVIC_GET_PRIORITY( irq );//get current priority
         
         int priority = nvic_execution_priority( );// get current priority
         // if running from handler mode set priority higher than current handler
         priority = ( priority < 256 ) && ( ( priority - 16 ) > 0 ) ? priority - 16 : 128;
-        NVIC_SET_PRIORITY( IRQ_CMP, priority );//set priority to new level
+        NVIC_SET_PRIORITY( irq, priority );//set priority to new level
         __disable_irq( );
-        return_cmp_irq = _VectorsRam[IRQ_CMP+16];// save prev isr
-        attachInterruptVector( IRQ_CMP, wakeup_isr );
+        return_cmp_irq = _VectorsRam[irq+16];// save prev isr
+        attachInterruptVector( irq, wakeup_isr );
         __enable_irq( );
+    } else {
+        return;
     }
     
     CR0 = *cmpx_cr0;
@@ -479,8 +479,8 @@ void SnoozeCompare::enableDriver( uint8_t mode ) {
         default:
             break;
     }
-    return_isr_enabled = NVIC_IS_ENABLED( IRQ_CMP );
-    if ( return_isr_enabled == 0 ) NVIC_ENABLE_IRQ( IRQ_CMP );
+    return_isr_enabled = NVIC_IS_ENABLED( irq );
+    if ( return_isr_enabled == 0 ) NVIC_ENABLE_IRQ( irq );
     
     // setup compare
     *cmpx_cr0 = CMP_CR0_FILTER_CNT( 0x07 );

@@ -5,9 +5,11 @@
 //
 
 #if defined(HAS_KINETISK_UART0)
+#define TWO_MHZ 2000000
 #define BAUD2DIV_2MHZ(baud) (((TWO_MHZ * 2) + ((baud) >> 1)) / (baud))
 #elif defined(HAS_KINETISL_UART0)
 // LC uses OSCERCLK, which is 16 MHz. Oversample rate is 4.
+#define SIXTEEN_MHZ 16000000
 #define BAUD2DIV_2MHZ(baud) (((SIXTEEN_MHZ / 4) + ((baud) >> 1)) / (baud))
 
 #define SIM_SOPT2_UART0SRC_MASK 0x0C000000
