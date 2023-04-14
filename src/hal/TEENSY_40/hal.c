@@ -649,7 +649,7 @@ void start_up( void ) {
      __asm__ volatile( "MOV PC, LR" );*/
 }
 //----------------------------------------------------------------------------------
-void startup_early_hook( void ) {
+FLASHMEM void startup_early_hook( void ) {
     uint32_t OR_D_GPR = IOMUXC_GPR_GPR4 | IOMUXC_GPR_GPR7 | IOMUXC_GPR_GPR8 | IOMUXC_GPR_GPR12;
     if ( OR_D_GPR > 0x0 ) {
         IOMUXC_GPR_GPR1 &= ~IOMUXC_GPR_GPR1_GINT;
